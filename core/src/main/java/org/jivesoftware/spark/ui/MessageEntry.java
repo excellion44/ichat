@@ -139,7 +139,7 @@ public class MessageEntry extends TimeStampedEntry
 
         // First, add the message prefix.
         final Document doc = chatArea.getDocument();
-        doc.insertString( doc.getLength(), getFormattedTimestamp() + prefix + ": ", prefixStyle );
+        doc.insertString( doc.getLength(),  prefix +" "+ getFormattedTimestamp() + ":\n", prefixStyle );
 
         final MutableAttributeSet directiveStyle = applyMessageStyle( 'K', messageStyle ); // Special style used on the directives themselves.
 
