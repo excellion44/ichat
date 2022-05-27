@@ -227,73 +227,98 @@ public class ContactInfoWindow extends JPanel {
         nicknameLabel.setText(contactItem.getDisplayName());
 
         String status = contactItem.getStatus();
-        if (!ModelUtil.hasLength(status)) {
-            if (contactItem.getPresence() == null || contactItem.getPresence().getType() == Presence.Type.unavailable) {
+
+        if (!ModelUtil.hasLength(status))
+        {
+            if (contactItem.getPresence() == null || contactItem.getPresence().getType() == Presence.Type.unavailable)
+            {
                 status = Res.getString("offline");
             }
-            else {
+            else
+            {
                 status = Res.getString("online");
             }
         }
-        if (status.equals(Res.getString("offline")) || contactItem.getPresence().isAway()) {
+        if (status.equals(Res.getString("offline")) || contactItem.getPresence().isAway())
+        {
         	//If user is offline or away, try to see last activity
 
-	        try {
+	        try
+            {
                 //If user is away (not offline), last activity request is sent to client
 				Jid client = status.equals(Res.getString("offline")) ? contactItem.getJid() : contactItem.getPresence().getFrom();
 	            LastActivity activity = LastActivityManager.getInstanceFor( SparkManager.getConnection() ).getLastActivity(client);
 	
 	            long idleTime = (activity.getIdleTime() * 1000);
 	
-	            if (idleTime > 0) {
-	                if (status.equals(Res.getString("offline"))) {
+	            if (idleTime > 0)
+	            {
+	                if (status.equals(Res.getString("offline")))
+	                {
 		                SimpleDateFormat format = new SimpleDateFormat("M/d/yy");
 		                Date l = new Date();
 		                String curDay = format.format(l);
 		                l.setTime(l.getTime() - idleTime);
 		                //If idleTime is within today show the time, otherwise, show the day, date, and time
-		                if (curDay.equals(format.format(l))) {
+
+		                if (curDay.equals(format.format(l)))
+		                {
 		                    format = new SimpleDateFormat("h:mm a");
-		                } else {
+		                }
+		                else
+                        {
 		                    format = new SimpleDateFormat("EEE M/d/yy h:mm a");
 		                }
+
 	                	status += (" since " + format.format(l));
-	                } else if (contactItem.getPresence().isAway()) {
+
+	                }
+	                else if (contactItem.getPresence().isAway())
+	                {
 	                    status += "\n";
 	                    String time = ModelUtil.getTimeFromLong(idleTime);
 	                    status += Res.getString("message.idle.for", time);
 	                }
 	            }
-	        } catch (Exception e1) {
+	        }
+	        catch (Exception e1)
+            {
 	            Log.warning( "Unable to get Last Activity from: " + contactItem.toString(), e1 );
 	        }
         }
         statusLabel.setText(status);
 
         Transport transport = TransportUtils.getTransport(contactItem.getJid().asDomainBareJid());
-        if (transport != null) {
+
+        if (transport != null)
+        {
             fullJIDLabel.setIcon(transport.getIcon());
             fullJIDLabel.setText(transport.getName() + " - " + contactItem.getJid().getLocalpartOrThrow().asUnescapedString());
         }
-        else {
-            fullJIDLabel.setText(contactItem.getJid().getLocalpartOrThrow().asUnescapedString());
+        else
+        {
+            fullJIDLabel.setText(contactItem.getJid().getLocalpartOrThrow().asUnescapedString()); //выводит ID(НикНэйм пользователя которого просматриваешь наведением мышки)
             fullJIDLabel.setIcon(null);
         }
 
         avatarLabel.setBorder(null);
 
-        try {
+        try
+        {
             URL avatarURL = contactItem.getAvatarURL();
             ImageIcon icon = null;
-            if (avatarURL != null) {
+            if (avatarURL != null)
+            {
                 icon = new ImageIcon(avatarURL);
             }
 
-            if (icon != null && icon.getIconHeight() > 1) {
+            if (icon != null && icon.getIconHeight() > 1)
+            {
                 icon = GraphicUtils.scaleImageIcon(icon, 96, 96);
                 avatarLabel.setIcon(icon);
             }
-            else {
+            else
+            {
                 icon = SparkRes.getImageIcon(SparkRes.DEFAULT_AVATAR_64x64_IMAGE);
                 avatarLabel.setIcon(icon);
             }
@@ -307,13 +332,17 @@ public class ContactInfoWindow extends JPanel {
         String title = "";
         String phone = "";
         VCard vcard = SparkManager.getVCardManager().getVCardFromMemory(contactItem.getJid().asBareJid());
-        if (vcard != null) {
+        if (vcard != null)
+        {
             title = vcard.getField("TITLE");
             phone = vcard.getPhoneWork("VOICE");
-            if (!ModelUtil.hasLength(title)) {
+
+            if (!ModelUtil.hasLength(title))
+            {
                 title = "";
             }
-            if (!ModelUtil.hasLength(phone)) {
+            if (!ModelUtil.hasLength(phone))
+            {
                 phone = "";
             }
         }
@@ -323,7 +352,8 @@ public class ContactInfoWindow extends JPanel {
 
     }
 
-    public void setContactItem(ContactItem contactItem) {
+    public void setContactItem(ContactItem contactItem)
+    {
         this.contactItem = contactItem;
         customizeUI(this.contactItem);
     }
@@ -332,7 +362,8 @@ public class ContactInfoWindow extends JPanel {
         return contactItem;
     }
 
-    public void dispose() {
+    public void dispose()
+    {
         window.setVisible(false);
         contactItem = null;
         window.dispose();
