@@ -1,0 +1,1071 @@
+/**
+ * Copyright (C) 2004-2011 Jive Software. All rights reserved.
+ * <p>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.jivesoftware.spark.ui;
+
+import org.jivesoftware.resource.Res;
+import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.spark.PresenceManager;
+import org.jivesoftware.spark.SparkManager;
+import org.jivesoftware.spark.Workspace;
+import org.jivesoftware.spark.component.VerticalFlowLayout;
+import org.jivesoftware.spark.component.panes.CollapsiblePane;
+import org.jivesoftware.spark.component.renderer.JContactItemRenderer;
+import org.jivesoftware.spark.util.*;
+import org.jivesoftware.spark.util.SwingWorker;
+import org.jivesoftware.spark.util.log.Log;
+import org.jivesoftware.sparkimpl.settings.local.LocalPreferences;
+import org.jivesoftware.sparkimpl.settings.local.SettingsManager;
+import org.jxmpp.jid.BareJid;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.*;
+import java.util.List;
+
+/**
+ * Container representing a RosterGroup within the Contact List.
+ */
+public class ContactGroup extends CollapsiblePane implements MouseListener {
+    private static final long serialVersionUID = 6578057848913010799L;
+    private final List<ContactItem> contactItems = new ArrayList<>();
+    private final List<ContactGroup> contactGroups = new ArrayList<>();
+    private final List<ContactGroupListener> listeners = new ArrayList<>();
+    private final List<ContactItem> offlineContacts = new ArrayList<>();
+
+    private String groupName;
+    private final DefaultListModel<ContactItem> model;
+    private final JList<? extends ContactItem> contactItemList;
+    private boolean sharedGroup;
+    private final JPanel listPanel;
+
+    // Used to display no contacts in list.
+    private final ContactItem noContacts = UIComponentRegistry.createContactItem(
+        Res.getString("group.empty"), null, null);
+
+    private final ListMotionListener motionListener = new ListMotionListener();
+
+    private boolean canShowPopup;
+
+    private boolean mouseDragged = false;
+
+    private final LocalPreferences preferences;
+
+    private ContactList contactList = Workspace.getInstance().getContactList();
+
+    private DisplayWindowTask timerTask = null;
+
+    /**
+     * Create a new ContactGroup.
+     *
+     * @param groupName the name of the new ContactGroup.
+     */
+    public ContactGroup(String groupName) {
+        // Initialize Model and UI
+        model = new DefaultListModel<>();
+        contactItemList = new JList<>(model);
+
+        preferences = SettingsManager.getLocalPreferences();
+
+        setTitle(getGroupTitle(groupName));
+
+        // Use JPanel Renderer
+        contactItemList.setCellRenderer(new JContactItemRenderer());
+
+        this.groupName = groupName;
+
+        listPanel = new JPanel(new VerticalFlowLayout(VerticalFlowLayout.TOP, 0, 0, true, false));
+        listPanel.add(contactItemList, listPanel);
+        this.setContentPane(listPanel);
+
+        if (!isOfflineGroup()) {
+            contactItemList.setDragEnabled(true);
+            contactItemList.setTransferHandler(new ContactGroupTransferHandler());
+        }
+
+        // Allow for mouse events to take place on the title bar
+        getTitlePane().addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                checkPopup(e);
+
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                checkPopup(e);
+            }
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getButton() == MouseEvent.BUTTON1) {
+                    contactList = Workspace.getInstance().getContactList();
+                    contactList.saveState();
+                }
+            }
+
+            public void checkPopup(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    e.consume();
+                    fireContactGroupPopupEvent(e);
+                }
+            }
+        });
+
+        // Items should have selection listener
+        contactItemList.addMouseListener(this);
+
+        contactItemList.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent keyEvent) {
+
+            }
+
+            @Override
+            public void keyPressed(KeyEvent keyEvent) {
+                if (keyEvent.getKeyChar() == KeyEvent.VK_ENTER) {
+                    ContactItem item = contactItemList.getSelectedValue();
+                    fireContactItemDoubleClicked(item);
+                }
+
+                ContactList.activeKeyEvent = keyEvent;
+            }
+
+            @Override
+            public void keyReleased(KeyEvent keyEvent) {
+                ContactList.activeKeyEvent = null;
+            }
+        });
+
+        noContacts.getNicknameLabel().setFont(new Font("Dialog", Font.PLAIN, 11));
+        noContacts.getNicknameLabel().setForeground(Color.GRAY);
+        model.addElement(noContacts);
+
+        // Add Popup Window
+        addPopupWindow();
+
+
+    }
+
+    /**
+     * Adds a new offline contact.
+     *
+     * @param alias    the alias of the offline contact.
+     * @param nickname the nickname of the offline contact.
+     * @param jid      the jid of the offline contact.
+     * @param status   the current status of the offline contact.
+     */
+    public void addOfflineContactItem(final String alias, final String nickname, final BareJid jid, final String status) {
+        if (EventQueue.isDispatchThread()) {
+            // Build new ContactItem
+            final ContactItem offlineItem = UIComponentRegistry.createContactItem(alias, nickname, jid);
+            offlineItem.setGroupName(getGroupName());
+
+            final Presence offlinePresence = new Presence(Presence.Type.unavailable);
+            offlineItem.setPresence(offlinePresence);
+
+            // set offline icon
+            offlineItem.setIcon(PresenceManager.getIconFromPresence(offlinePresence));
+
+            // Set status if applicable.
+            if (ModelUtil.hasLength(status)) {
+                offlineItem.setStatusText(status);
+            }
+            // Add to offline contacts.
+            offlineContacts.add(offlineItem);
+
+            insertOfflineContactItem(offlineItem);
+        } else {
+            try {
+                // invokeAndWait, because the contacts must be added before they can moved to offline group
+                EventQueue.invokeAndWait(() -> {
+                    // Build new ContactItem
+                    final ContactItem offlineItem = UIComponentRegistry.createContactItem(alias, nickname, jid);
+                    offlineItem.setGroupName(getGroupName());
+
+                    final Presence offlinePresence = new Presence(Presence.Type.unavailable);
+                    offlineItem.setPresence(offlinePresence);
+
+                    // set offline icon
+                    offlineItem.setIcon(PresenceManager.getIconFromPresence(offlinePresence));
+
+                    // Set status if applicable.
+                    if (ModelUtil.hasLength(status)) {
+                        offlineItem.setStatusText(status);
+                    }
+                    // Add to offline contacts.
+                    offlineContacts.add(offlineItem);
+
+                    insertOfflineContactItem(offlineItem);
+                });
+            } catch (Exception ex) {
+                Log.error(ex);
+            }
+        }
+    }
+
+    /**
+     * Inserts a new offline <code>ContactItem</code> into the ui model.
+     *
+     * @param offlineItem the ContactItem to add.
+     */
+    public void insertOfflineContactItem(ContactItem offlineItem) {
+        if (model.contains(offlineItem)) {
+            return;
+        }
+
+        if (!preferences.isOfflineGroupVisible()) {
+            offlineContacts.sort(itemComparator);
+            int index = offlineContacts.indexOf(offlineItem);
+
+            int totalListSize = contactItems.size();
+            int newPos = totalListSize + index;
+
+            if (newPos > model.size()) {
+                newPos = model.size();
+            }
+
+            model.insertElementAt(offlineItem, newPos);
+
+            if (model.contains(noContacts)) {
+                model.removeElement(noContacts);
+            }
+        }
+    }
+
+    /**
+     * Removes an offline <code>ContactItem</code> from the Offline contact
+     * model and ui.
+     *
+     * @param item the offline contact item to remove.
+     */
+    public void removeOfflineContactItem(ContactItem item) {
+        offlineContacts.remove(item);
+        //removeContactItem(item);
+    }
+
+    /**
+     * Removes an offline <code>ContactItem</code> from the offline contact model and ui.
+     *
+     * @param jid the offline contact item to remove.
+     */
+    public void removeOfflineContactItem(BareJid jid) {
+        final List<ContactItem> items = new ArrayList<>(offlineContacts);
+        for (ContactItem item : items) {
+            if (item.getJid().equals(jid)) {
+                removeOfflineContactItem(item);
+            }
+        }
+    }
+
+    /**
+     * Toggles the visibility of Offline Contacts.
+     *
+     * @param show true if offline contacts should be shown, otherwise false.
+     */
+    public void toggleOfflineVisibility(boolean show) {
+        final List<ContactItem> items = new ArrayList<>(offlineContacts);
+        for (ContactItem item : items) {
+            if (show) {
+                insertOfflineContactItem(item);
+            } else {
+                model.removeElement(item);
+            }
+        }
+        if (model.getSize() == 0) {
+            model.addElement(noContacts);
+        }
+    }
+
+
+    /**
+     * Adds a <code>ContactItem</code> to the ContactGroup.
+     *
+     * @param item the ContactItem.
+     */
+    public void addContactItem(ContactItem item) {
+        // Remove from offline group if it exists
+        removeOfflineContactItem(item.getJid());
+
+        if (model.contains(noContacts)) {
+            model.remove(0);
+        }
+
+        if (Res.getString("group.offline").equals(groupName)) {
+            setOfflineGroupNameFont(item);
+        }
+
+        item.setGroupName(getGroupName());
+        contactItems.add(item);
+
+        List<ContactItem> tempItems = getContactItems();
+
+
+        tempItems.sort(itemComparator);
+
+
+        int index = tempItems.indexOf(item);
+
+
+        Object[] objs = contactItemList.getSelectedValuesList().toArray();
+
+        model.insertElementAt(item, index);
+
+        int[] intList = new int[objs.length];
+        for (int i = 0; i < objs.length; i++) {
+            ContactItem contact = (ContactItem) objs[i];
+            intList[i] = model.indexOf(contact);
+        }
+
+        if (intList.length > 0) {
+            contactItemList.setSelectedIndices(intList);
+        }
+
+        fireContactItemAdded(item);
+    }
+
+    protected void setOfflineGroupNameFont(ContactItem item) {
+        item.getNicknameLabel().setFont(new Font("Dialog", Font.PLAIN, item.getFontSize()));
+        item.getNicknameLabel().setForeground(Color.GRAY);
+    }
+
+    /**
+     * Call whenever the UI needs to be updated.
+     */
+    public void fireContactGroupUpdated() {
+        contactItemList.validate();
+        contactItemList.repaint();
+        updateTitle();
+    }
+
+    /**
+     * Adds a sub group to this Contact group.
+     *
+     * @param contactGroup
+     *            that should be the new subgroup
+     */
+    public void addContactGroup(ContactGroup contactGroup) {
+        final JPanel panel = new JPanel(new GridBagLayout());
+        panel.add(contactGroup, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 15, 0, 0), 0, 0));
+        panel.setBackground(Color.white);
+        contactGroup.setSubPane(true);
+
+        // contactGroup.setStyle(CollapsiblePane.TREE_STYLE);
+        contactGroups.add(contactGroup);
+        contactGroups.sort(ContactList.GROUP_COMPARATOR);
+        listPanel.add(panel, contactGroups.indexOf(contactGroup));
+    }
+
+    /**
+     * Removes a child ContactGroup.
+     *
+     * @param contactGroup the contact group to remove.
+     */
+    public void removeContactGroup(ContactGroup contactGroup) {
+        Component[] comps = listPanel.getComponents();
+        for (Component comp : comps) {
+            if (comp instanceof JPanel) {
+                JPanel panel = (JPanel) comp;
+                ContactGroup group = (ContactGroup) panel.getComponent(0);
+                if (group == contactGroup) {
+                    listPanel.remove(panel);
+                    break;
+                }
+            }
+        }
+
+
+        contactGroups.remove(contactGroup);
+    }
+
+    public void setPanelBackground(Color color) {
+        Component[] comps = listPanel.getComponents();
+        for (Component comp : comps) {
+            if (comp instanceof JPanel) {
+                JPanel panel = (JPanel) comp;
+                panel.setBackground(color);
+            }
+        }
+
+    }
+
+    /**
+     * Returns a ContactGroup based on it's name.
+     *
+     * @param groupName the name of the group.
+     * @return the ContactGroup.
+     */
+    public ContactGroup getContactGroup(String groupName) {
+        for (ContactGroup group : new ArrayList<>(contactGroups)) {
+            if (group.getGroupName().equals(groupName)) {
+                return group;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Removes a <code>ContactItem</code>.
+     *
+     * @param item the ContactItem to remove.
+     */
+    public void removeContactItem(ContactItem item) {
+        contactItems.remove(item);
+        if (contactItems.isEmpty()) {
+            removeContactGroup(this);
+        }
+
+        model.removeElement(item);
+        updateTitle();
+
+        fireContactItemRemoved(item);
+    }
+
+    /**
+     * Returns a <code>ContactItem</code> by the displayed name the user has been assigned.
+     *
+     * @param displayName the displayed name of the user.
+     * @return the ContactItem.
+     */
+    public ContactItem getContactItemByDisplayName(CharSequence displayName) {
+        for (ContactItem item : new ArrayList<>(contactItems)) {
+            if (item.getDisplayName().equals(displayName.toString())) {
+                return item;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns a <code>ContactItem</code> from offlineContacts by the displayed name the user has been assigned.
+     *
+     * @param displayName the displayed name of the user.
+     * @return the ContactItem.
+     */
+    public ContactItem getOfflineContactItemByDisplayName(String displayName) {
+        for (ContactItem item : new ArrayList<>(offlineContacts)) {
+            if (item.getDisplayName().equals(displayName)) {
+                return item;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns a <code>ContactItem</code> by the displayed name the user has been assigned.
+     *
+     * @param displayName the displayed name of the user.
+     * @param searchInOffline should we search <code>ContactItem</code> in offline contacts
+     * @return the ContactItem.
+     */
+    public ContactItem getContactItemByDisplayName(String displayName, boolean searchInOffline) {
+        if (searchInOffline) {
+            ContactItem item = getContactItemByDisplayName(displayName);
+            if (item == null) {
+                item = getOfflineContactItemByDisplayName(displayName);
+            }
+            return item;
+        }
+        return getContactItemByDisplayName(displayName);
+    }
+
+    /**
+     * Returns a <code>ContactItem</code> by the users bare bareJID.
+     *
+     * @param bareJID the bareJID of the user.
+     * @return the ContactItem.
+     */
+    public ContactItem getContactItemByJID(BareJid bareJID) {
+        for (ContactItem item : new ArrayList<>(contactItems)) {
+            if (item != null && item.getJid().equals(bareJID)) {
+                return item;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns a <code>ContactItem</code> from offlineContacts by the users bare bareJID.
+     *
+     * @param bareJID the bareJID of the user.
+     * @return the ContactItem.
+     */
+    public ContactItem getOfflineContactItemByJID(BareJid bareJID) {
+        for (ContactItem item : new ArrayList<>(offlineContacts)) {
+            if (item.getJid().equals(bareJID)) {
+                return item;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns a <code>ContactItem</code> by the users bare bareJID.
+     *
+     * @param bareJID the bareJID of the user.
+     * @param searchInOffline should we search <code>ContactItem</code> in offline contacts
+     * @return the ContactItem.
+     */
+    public ContactItem getContactItemByJID(BareJid bareJID, boolean searchInOffline) {
+        if (searchInOffline) {
+            ContactItem item = getContactItemByJID(bareJID);
+            if (item == null) {
+                item = getOfflineContactItemByJID(bareJID);
+            }
+            return item;
+        }
+        return getContactItemByJID(bareJID);
+    }
+
+    /**
+     * Returns all <code>ContactItem</cod>s in the ContactGroup.
+     *
+     * @return all ContactItems.
+     */
+    public List<ContactItem> getContactItems() {
+        final List<ContactItem> list = new ArrayList<>(contactItems);
+        list.sort(itemComparator);
+        return list;
+    }
+
+    /**
+     * Returns the name of the ContactGroup.
+     *
+     * @return the name of the ContactGroup.
+     */
+    public String getGroupName() {
+        return groupName;
+    }
+
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        ContactItem item = contactItemList.getSelectedValue();
+        if (item == null) {
+            return;
+        }
+
+        if (e.getClickCount() == 2) {
+            fireContactItemDoubleClicked(item);
+        } else if (e.getClickCount() == 1) {
+            fireContactItemClicked(item);
+        }
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+        int loc = contactItemList.locationToIndex(e.getPoint());
+
+        Object o = model.getElementAt(loc);
+        if (!(o instanceof ContactItem)) {
+            return;
+        }
+
+        contactItemList.setCursor(GraphicUtils.HAND_CURSOR);
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+        Object o;
+        try {
+            int loc = contactItemList.locationToIndex(e.getPoint());
+            if (loc == -1) {
+                return;
+            }
+
+            o = model.getElementAt(loc);
+            if (!(o instanceof ContactItem)) {
+                UIComponentRegistry.getContactInfoWindow().dispose();
+                return;
+            }
+        } catch (Exception e1) {
+            Log.error(e1);
+            return;
+        }
+
+        contactItemList.setCursor(GraphicUtils.DEFAULT_CURSOR);
+
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+        checkPopup(e);
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+        checkPopup(e);
+    }
+
+    private void checkPopup(MouseEvent e) {
+        if (e.isPopupTrigger()) {
+            // Otherwise, handle single selection
+            int index = contactItemList.locationToIndex(e.getPoint());
+            if (index != -1) {
+                int[] indexes = contactItemList.getSelectedIndices();
+                boolean selected = false;
+                for (int o : indexes) {
+                    if (index == o) {
+                        selected = true;
+                        break;
+                    }
+                }
+
+                if (!selected) {
+                    contactItemList.setSelectedIndex(index);
+                    fireContactItemClicked(contactItemList.getSelectedValue());
+                }
+            }
+
+
+            final Collection<ContactItem> selectedItems = SparkManager.getChatManager().getSelectedContactItems();
+            if (selectedItems.size() > 1) {
+                firePopupEvent(e, selectedItems);
+            } else if (selectedItems.size() == 1) {
+                final ContactItem contactItem = selectedItems.iterator().next();
+                firePopupEvent(e, contactItem);
+            }
+        }
+    }
+
+    /**
+     * Add a <code>ContactGroupListener</code>.
+     *
+     * @param listener the ContactGroupListener.
+     */
+    public void addContactGroupListener(ContactGroupListener listener) {
+        listeners.add(listener);
+    }
+
+    /**
+     * Removes a <code>ContactGroupListener</code>.
+     *
+     * @param listener the ContactGroupListener.
+     */
+    public void removeContactGroupListener(ContactGroupListener listener) {
+        listeners.remove(listener);
+    }
+
+    private void fireContactItemClicked(ContactItem item) {
+        for (final ContactGroupListener listener : listeners) {
+            try {
+                listener.contactItemClicked(item);
+            } catch (Exception e) {
+                Log.error("A ContactGroupListener (" + listener + ") threw an exception while processing a 'contactItemClicked' event for item: " + item, e);
+            }
+        }
+    }
+
+    private void fireContactItemDoubleClicked(ContactItem item) {
+        for (final ContactGroupListener listener : listeners) {
+            try {
+                listener.contactItemDoubleClicked(item);
+            } catch (Exception e) {
+                Log.error("A ContactGroupListener (" + listener + ") threw an exception while processing a 'contactItemDoubleClicked' event for item: " + item, e);
+            }
+        }
+    }
+
+    private void firePopupEvent(MouseEvent event, ContactItem item) {
+        for (final ContactGroupListener listener : listeners) {
+            try {
+                listener.showPopup(event, item);
+            } catch (Exception e) {
+                Log.error("A ContactGroupListener (" + listener + ") threw an exception while processing a 'showPopup' event for item: " + item + ", event: " + event, e);
+            }
+        }
+    }
+
+    private void firePopupEvent(MouseEvent event, Collection<ContactItem> items) {
+        for (final ContactGroupListener listener : listeners) {
+            try {
+                listener.showPopup(event, items);
+            } catch (Exception e) {
+                Log.error("A ContactGroupListener (" + listener + ") threw an exception while processing a 'showPopup' event for items: " + items + ", event: " + event, e);
+            }
+        }
+    }
+
+    private void fireContactGroupPopupEvent(MouseEvent event) {
+        for (final ContactGroupListener listener : listeners) {
+            try {
+                listener.contactGroupPopup(event, this);
+            } catch (Exception e) {
+                Log.error("A ContactGroupListener (" + listener + ") threw an exception while processing a 'contactGroupPopup' event: " + event, e);
+            }
+        }
+    }
+
+    private void fireContactItemAdded(ContactItem item) {
+        for (final ContactGroupListener listener : listeners) {
+            try {
+                listener.contactItemAdded(item);
+            } catch (Exception e) {
+                Log.error("A ContactGroupListener (" + listener + ") threw an exception while processing a 'contactItemAdded' event for item: " + item, e);
+            }
+        }
+    }
+
+    private void fireContactItemRemoved(ContactItem item) {
+        for (final ContactGroupListener listener : listeners) {
+            try {
+                listener.contactItemRemoved(item);
+            } catch (Exception e) {
+                Log.error("A ContactGroupListener (" + listener + ") threw an exception while processing a 'contactItemRemoved' event for item: " + item, e);
+            }
+        }
+    }
+
+    private void updateTitle() {
+        if (Res.getString("group.offline").equals(groupName)) {
+            setTitle(Res.getString("group.offline"));
+            return;
+        }
+
+        int count = 0;
+        List<ContactItem> list = new ArrayList<>(getContactItems());
+        for (ContactItem it : list) {
+            if (it.isAvailable()) {
+                count++;
+            }
+        }
+
+        setTitle(getGroupTitle(groupName) + " (" + count + " " + Res.getString("online") + ")");
+
+
+        if (model.getSize() == 0) {
+            model.addElement(noContacts);
+        }
+    }
+
+    /**
+     * Returns the containing <code>JList</code> of the ContactGroup.
+     *
+     * @return the JList.
+     */
+    public JList<? extends ContactItem> getList() {
+        return contactItemList;
+    }
+
+    /**
+     * Clears all selections within this group.
+     */
+    public void clearSelection() {
+        contactItemList.clearSelection();
+    }
+
+    public void removeAllContacts() {
+        // Remove all users from online group.
+        for (ContactItem item : new ArrayList<>(getContactItems())) {
+            removeContactItem(item);
+        }
+
+        // Remove all users from offline group.
+        for (ContactItem item : getOfflineContacts()) {
+            removeOfflineContactItem(item);
+        }
+    }
+
+    /**
+     * Returns true if the ContactGroup contains available users.
+     *
+     * @return true if the ContactGroup contains available users.
+     */
+    public boolean hasAvailableContacts() {
+        for (ContactGroup group : contactGroups) {
+            if (group.hasAvailableContacts()) {
+                return true;
+            }
+        }
+
+        for (ContactItem item : getContactItems()) {
+            if (item.getPresence() != null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public Collection<ContactItem> getOfflineContacts() {
+        return new ArrayList<>(offlineContacts);
+    }
+
+    /**
+     * Sorts ContactItems.
+     */
+    final protected Comparator<ContactItem> itemComparator = Comparator.comparing(item -> item.getDisplayName().toLowerCase());
+
+    /**
+     * Returns true if this ContactGroup is the Offline Group.
+     *
+     * @return true if OfflineGroup.
+     */
+    public boolean isOfflineGroup() {
+        return Res.getString("group.offline").equals(getGroupName());
+    }
+
+    /**
+     * Returns true if this ContactGroup is the Unfiled Group.
+     *
+     * @return true if UnfiledGroup.
+     */
+    public boolean isUnfiledGroup() {
+        //TODO: Don't identify the unfiled group by name, because the user
+        //could have a custom group of that name.
+
+        return Res.getString("unfiled").equals(getGroupName());
+    }
+
+    @Override
+    public String toString() {
+        return getGroupName();
+    }
+
+    /**
+     * Returns true if ContactGroup is a Shared Group.
+     *
+     * @return true if Shared Group.
+     */
+    public boolean isSharedGroup() {
+        return sharedGroup;
+    }
+
+    /**
+     * Set to true if this ContactGroup is a shared Group.
+     *
+     * @param sharedGroup true if shared group.
+     */
+    protected void setSharedGroup(boolean sharedGroup) {
+        this.sharedGroup = sharedGroup;
+        if (sharedGroup) {
+            setToolTipText(Res.getString("message.is.shared.group", getGroupName()));
+        }
+    }
+
+    /**
+     * Returns all Selected Contacts within the ContactGroup.
+     *
+     * @return all selected ContactItems.
+     */
+    public List<ContactItem> getSelectedContacts() {
+        final List<ContactItem> items = new ArrayList<>();
+        Object[] selections = contactItemList.getSelectedValuesList().toArray();
+        for (Object selection : selections) {
+            try {
+                ContactItem item = (ContactItem) selection;
+                items.add(item);
+            } catch (NullPointerException e) {
+                // TODO: Evaluate if we should do something here.
+            }
+        }
+        return items;
+    }
+
+    public JPanel getContainerPanel() {
+        return listPanel;
+    }
+
+    public Collection<ContactGroup> getContactGroups() {
+        return contactGroups;
+    }
+
+    /**
+     * Lets make sure that the panel doesn't stretch past the
+     * scrollpane view pane.
+     *
+     * @return the preferred dimension
+     */
+    @Override
+    public Dimension getPreferredSize() {
+        final Dimension size = super.getPreferredSize();
+        size.width = 0;
+        return size;
+    }
+
+    /**
+     * Sets the name of group.
+     *
+     * @param groupName the contact group name.
+     */
+    public void setGroupName(String groupName) {
+        this.groupName = groupName;
+    }
+
+    /**
+     * Returns the "pretty" title of the ContactGroup.
+     *
+     * @param title the title.
+     * @return the new title.
+     */
+    public String getGroupTitle(String title) {
+        int lastIndex = title.lastIndexOf("::");
+        if (lastIndex != -1) {
+            title = title.substring(lastIndex + 2);
+        }
+
+        return title;
+    }
+
+    /**
+     * Returns true if the group is nested.
+     *
+     * @param groupName the name of the group.
+     * @return true if the group is nested.
+     */
+    public boolean isSubGroup(String groupName) {
+        return groupName.contains("::");
+    }
+
+    /**
+     * Returns true if this group is nested.
+     *
+     * @return true if nested.
+     */
+    public boolean isSubGroup() {
+        return isSubGroup(getGroupName());
+    }
+
+    /**
+     * Returns the underlying container for the JList.
+     *
+     * @return the underlying container of the JList.
+     */
+    public JPanel getListPanel() {
+        return listPanel;
+    }
+
+    /**
+     * Adds an internal popup listesner.
+     */
+    private void addPopupWindow() {
+        contactItemList.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent mouseEvent) {
+                canShowPopup = true;
+                timerTask = new DisplayWindowTask(mouseEvent);
+                TaskEngine.getInstance().schedule(timerTask, 500, 1000);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent mouseEvent) {
+                if (timerTask != null) {
+                    TaskEngine.getInstance().cancelScheduledTask(timerTask);
+                }
+                canShowPopup = false;
+                UIComponentRegistry.getContactInfoWindow().dispose();
+            }
+        });
+
+
+        contactItemList.addMouseMotionListener(motionListener);
+    }
+
+    private class DisplayWindowTask extends SwingTimerTask {
+        private MouseEvent event;
+        private boolean newPopupShown = false;
+
+        public DisplayWindowTask(MouseEvent e) {
+            event = e;
+        }
+
+        @Override
+        public void doRun() {
+            if (canShowPopup) {
+                if (!newPopupShown && !mouseDragged) {
+                    displayWindow(event);
+                    newPopupShown = true;
+                }
+            }
+        }
+
+        public void setEvent(MouseEvent event) {
+            this.event = event;
+        }
+
+        public void setNewPopupShown(boolean popupChanged) {
+            this.newPopupShown = popupChanged;
+        }
+
+        public boolean isNewPopupShown() {
+            return newPopupShown;
+        }
+    }
+
+    private class ListMotionListener extends MouseMotionAdapter {
+
+        @Override
+        public void mouseMoved(MouseEvent e) {
+            if (!canShowPopup) {
+                return;
+            }
+
+            if (e == null) {
+                return;
+            }
+            timerTask.setEvent(e);
+            if (needToChangePopup(e) && timerTask.isNewPopupShown()) {
+                UIComponentRegistry.getContactInfoWindow().dispose();
+                timerTask.setNewPopupShown(false);
+            }
+            mouseDragged = false;
+        }
+
+        @Override
+        public void mouseDragged(MouseEvent e) {
+            if (timerTask.isNewPopupShown()) {
+                UIComponentRegistry.getContactInfoWindow().dispose();
+            }
+            mouseDragged = true;
+        }
+    }
+
+
+    /**
+     * Displays the <code>ContactInfoWindow</code>.
+     *
+     * @param e the mouseEvent that triggered this event.
+     */
+    private void displayWindow(MouseEvent e) {
+        if (preferences.areVCardsVisible()) {
+            final ContactGroup parent = this;
+            final SwingWorker worker = new SwingWorker() {
+                @Override
+                public Object construct() {
+                    UIComponentRegistry.getContactInfoWindow().display(parent, e);
+                    return null;
+                }
+            };
+            worker.start();
+
+        }
+    }
+
+    private boolean needToChangePopup(MouseEvent e) {
+        ContactInfoWindow contact = UIComponentRegistry.getContactInfoWindow();
+        int loc = getList().locationToIndex(e.getPoint());
+        ContactItem item = getList().getModel().getElementAt(loc);
+        return (item == null || contact == null || contact.getContactItem() == null) || !contact.getContactItem().getJid().equals(item.getJid());
+    }
+
+    protected DefaultListModel<ContactItem> getModel() {
+        return model;
+    }
+
+    protected JList<? extends ContactItem> getContactItemList() {
+        return contactItemList;
+    }
+}
