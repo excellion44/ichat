@@ -207,7 +207,7 @@ public class SparkTransferManager {
         ResourceUtils.resButton(downloadsMenu, Res.getString("menuitem.view.downloads"));
         actionsMenu.addSeparator();
         actionsMenu.add(downloadsMenu);
-        downloadsMenu.addActionListener( e -> launchFile(Downloads.getDownloadDirectory()+"\11111") );
+        downloadsMenu.addActionListener( e -> launchFile(Downloads.getDownloadDirectory()+"\11111") );  //тут происходит проверка существует ли папка
 
         if (defaultDirectory == null) {
             defaultDirectory = new File(System.getProperty("user.home"));

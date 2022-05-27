@@ -389,7 +389,7 @@ public class LoginUIPanel extends javax.swing.JPanel implements KeyListener, Act
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setText(Default.getString(Default.SHORT_NAME));
+        jLabel1.setText(Default.getString(Default.SHORT_NAME)); //забираем имя программы из Default.properties
         jLabel1.setPreferredSize(new java.awt.Dimension(250, 22));
         pnlLeft.add(jLabel1);
 
