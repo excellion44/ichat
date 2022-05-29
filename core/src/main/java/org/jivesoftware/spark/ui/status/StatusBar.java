@@ -324,18 +324,23 @@ public class StatusBar extends JPanel implements VCardListener {
         }
 
         //SPARK-1521. Add privacy menu if Privacy Manager is active and have any visible lists
-        final PrivacyManager pmanager = PrivacyManager.getInstance();
-        if (pmanager.isPrivacyActive() && pmanager.getPrivacyLists().size() > 0) {
+       /* final PrivacyManager pmanager = PrivacyManager.getInstance();
+        if (pmanager.isPrivacyActive() && pmanager.getPrivacyLists().size() > 0)
+        {
 
             JMenu privMenu = new JMenu(Res.getString("privacy.status.menu.entry"));
             privMenu.setIcon(SparkRes.getImageIcon("PRIVACY_ICON_SMALL"));
 
-            for (SparkPrivacyList plist : pmanager.getPrivacyLists()) {
+            for (SparkPrivacyList plist : pmanager.getPrivacyLists())
+            {
                 JMenuItem it = new JMenuItem(plist.getListName());
                 privMenu.add(it);
-                if (plist.isActive()) {
+                if (plist.isActive())
+                {
                     it.setIcon(SparkRes.getImageIcon("PRIVACY_LIGHTNING"));
-                } else {
+                }
+                else
+                {
                     it.setIcon(null);
                 }
                 final SparkPrivacyList finalList = plist;
@@ -351,7 +356,7 @@ public class StatusBar extends JPanel implements VCardListener {
             }
 
             popup.add(privMenu);
-        }
+        }*/
 
         // Add change message
         final JMenuItem changeStatusMenu = new JMenuItem(Res.getString("menuitem.set.status.message"), SparkRes.getImageIcon(SparkRes.BLANK_IMAGE));
@@ -369,8 +374,8 @@ public class StatusBar extends JPanel implements VCardListener {
             }
         };
 
-        editMessagesAction.putValue(Action.NAME, Res.getString("menuitem.edit.status.message"));
-        popup.add(editMessagesAction);
+       // editMessagesAction.putValue(Action.NAME, Res.getString("menuitem.edit.status.message"));
+        //popup.add(editMessagesAction);
 
         final JPanel panel = getStatusPanel();
         popup.show(panel, 0, panel.getHeight());
