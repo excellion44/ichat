@@ -87,9 +87,10 @@ public class CheckUpdates {
         xstream.alias("Version", SparkVersion.class);
 
         // Specify the main update url for JiveSoftware
-        this.mainUpdateURL = "http://www.igniterealtime.org/updater/updater";
+        this.mainUpdateURL = "http://localhost";
 
         sparkPluginInstalled = isSparkPluginInstalled(SparkManager.getConnection());
+
     }
 
     public SparkVersion newBuildAvailable() {
@@ -398,7 +399,7 @@ public class CheckUpdates {
 
 
         if (periodOrLonger || explicit || sparkPluginInstalled) {
-            
+
             if (!explicit && !localPreferences.isBetaCheckingEnabled())
             {
                 return;
@@ -407,16 +408,16 @@ public class CheckUpdates {
             lastChecked = new Date();
             localPreferences.setLastCheckForUpdates(lastChecked);
             SettingsManager.saveSettings();
-            
+
             final SparkVersion serverVersion = newBuildAvailable();
             if (serverVersion == null) {
                 UPDATING = false;
 
                 UIManager.put("OptionPane.okButtonText", Res.getString("ok"));
-                
-                if (explicit) {
-                	UIManager.put("OptionPane.okButtonText", Res.getString("ok"));
-                    JOptionPane.showMessageDialog(SparkManager.getMainWindow(), Res.getString("message.no.updates"), Res.getString("title.no.updates"), JOptionPane.INFORMATION_MESSAGE);
+
+                if (explicit)
+                {
+                	System.out.print("Тут нужно будет запускать программу обновлений");
                 }
                 return;
             }
@@ -429,7 +430,7 @@ public class CheckUpdates {
                 filename = filename.substring(filename.indexOf('=') + 1);
             }
 
-            // Set Download Directory 
+            // Set Download Directory
             final File downloadDir = new File(Spark.getSparkUserHome(), "updates");
             downloadDir.mkdirs();
 
@@ -558,7 +559,7 @@ public class CheckUpdates {
      *
      * @param connection the XMPPConnection to use.
      * @return the information for about the latest Spark Client.
-     * @throws InterruptedException 
+     * @throws InterruptedException
      * @throws XMPPException If unable to retrieve latest version.
      */
     public static SparkVersion getLatestVersion(XMPPConnection connection) throws SmackException, XMPPException.XMPPErrorException, InterruptedException
