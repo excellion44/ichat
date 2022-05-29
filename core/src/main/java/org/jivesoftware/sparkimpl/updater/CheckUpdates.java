@@ -417,7 +417,14 @@ public class CheckUpdates {
 
                 if (explicit)
                 {
-                	System.out.print("Тут нужно будет запускать программу обновлений");
+                    try
+                    {
+                        Runtime.getRuntime().exec("c:\\windows\\notepad.exe");  //вроде работает нужно писать апдейтер
+                    }
+                    catch (Exception e)
+                    {
+                        e.printStackTrace();
+                    }
                 }
                 return;
             }
