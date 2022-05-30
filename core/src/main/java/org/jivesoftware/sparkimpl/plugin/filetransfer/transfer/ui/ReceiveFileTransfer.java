@@ -410,7 +410,15 @@ public class ReceiveFileTransfer extends JPanel {
      */
     protected static File toUniqueDownloadedFile(FileTransferRequest request)
     {
-       System.out.print(Downloads.getDownloadDirectory()+"\\1111");
+
+        Jid requestor = request.getRequestor();
+        BareJid bareJID = requestor.asBareJid();
+        ContactList contactList = SparkManager.getWorkspace().getContactList();
+        ContactItem contactItem = contactList.getContactItemByJID(bareJID);
+        System.out.print(contactItem.getDisplayName());
+
+        System.out.print(Downloads.getDownloadDirectory()+"\\1111");
+
         File downloadedFile = new File(Downloads.getDownloadDirectory()+"\\1111", request.getFileName());
         int count = 1;
         while (downloadedFile.isFile() && downloadedFile.exists()) {

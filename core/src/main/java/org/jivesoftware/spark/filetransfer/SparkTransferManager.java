@@ -295,7 +295,7 @@ public class SparkTransferManager {
         chatRoom.scrollToBottom();
         
         String fileTransMsg = contactItem.getDisplayName() + " " + Res.getString("message.file.transfer.short.message") + " " + fileName;
-        System.out.print(fileTransMsg);
+        //System.out.print(fileTransMsg);
         SparkManager.getChatManager().getChatContainer().fireNotifyOnMessage(chatRoom, true, fileTransMsg, Res.getString("message.file.transfer.notification"));
     }
 
