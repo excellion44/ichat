@@ -232,7 +232,7 @@ public class ReceiveFileTransfer extends JPanel {
     private void doAccept(FileTransferRequest request) {
         saveEventToHistory(Res.getString("message.file.transfer.history.you.accepted", fileName, nickname));
         try {
-            Downloads.checkDownloadDirectory();
+            Downloads.checkDownloadDirectory(nickname);
             acceptRequest(request);
         } catch (Exception ex) {
             // this means there is a problem with the download directory

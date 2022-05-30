@@ -43,10 +43,11 @@ public class Downloads {
      * @throws SecurityException 
      * @throws FileNotFoundException 
      */
-    public static File getDownloadDirectory() {
-	LocalPreferences pref = SettingsManager.getLocalPreferences();
-	downloadedDir = new File(pref.getDownloadDir());
-	return downloadedDir;
+    public static File getDownloadDirectory()
+    {
+	    LocalPreferences pref = SettingsManager.getLocalPreferences();
+	    downloadedDir = new File(pref.getDownloadDir());
+	    return downloadedDir;
     }
 
     /**
@@ -57,20 +58,30 @@ public class Downloads {
      * @throws NullPointerException if the directory is not set in preferences
      * @return true if the directory is ok
      */
-    public static synchronized boolean checkDownloadDirectory() throws FileNotFoundException, SecurityException, NullPointerException{
+    public static synchronized boolean checkDownloadDirectory(String i) throws FileNotFoundException, SecurityException, NullPointerException
+    {
     	// check the downloaddirectory
-    	if (Downloads.getDownloadDirectory() == null ){
+    	if (Downloads.getDownloadDirectory() == null )
+    	{
     		throw new NullPointerException(Res.getString("message.file.transfer.dirnull"));
-    	}else if(!Downloads.getDownloadDirectory().exists()){
-    		throw new FileNotFoundException(Res.getString("message.file.transfer.nodir"));
-    	}else if (!(Downloads.getDownloadDirectory().canWrite() && Downloads.getDownloadDirectory().canExecute())){
+    	}
+    	else if(!Downloads.getDownloadDirectory().exists())
+    	{
+            new File(Downloads.getDownloadDirectory()+"\\"+i).mkdirs(); //Создаем папку с насзванием соответствующим нику отправителя
+    	    //throw new FileNotFoundException(Res.getString("message.file.transfer.nodir"));
+    	}
+    	else if (!(Downloads.getDownloadDirectory().canWrite() && Downloads.getDownloadDirectory().canExecute()))
+    	{
     		throw new SecurityException(Res.getString("message.file.transfer.cantwritedir"));
     	}
     	//tro to create a file to check if we can write to the directory
-    	try{
+    	try
+        {
     		File x = File.createTempFile("dltemp", null,Downloads.getDownloadDirectory());
     		x.delete();
-    	}catch (Exception cantWriteDir){
+    	}
+    	catch (Exception cantWriteDir)
+        {
     		throw new SecurityException(Res.getString("message.file.transfer.cantwritedir"));
     	}
     	return true;
