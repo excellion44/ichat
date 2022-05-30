@@ -25,10 +25,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -415,21 +412,28 @@ public class ReceiveFileTransfer extends JPanel {
         BareJid bareJID = requestor.asBareJid();
         ContactList contactList = SparkManager.getWorkspace().getContactList();
         ContactItem contactItem = contactList.getContactItemByJID(bareJID);
-        System.out.print(contactItem.getDisplayName());
+        String ii = contactItem.getDisplayName();
 
-        System.out.print(Downloads.getDownloadDirectory()+"\\1111");
+        File CreateFolder = new File(Downloads.getDownloadDirectory()+"\\"+ii);
+        System.out.print(CreateFolder);
+        //System.out.print(Downloads.getDownloadDirectory()+"\\1111\n");
 
-        File downloadedFile = new File(Downloads.getDownloadDirectory()+"\\1111", request.getFileName());
+        if(!CreateFolder.exists())
+        {
+            CreateFolder.mkdir();
+        }
+
+        File downloadedFile = new File(CreateFolder, request.getFileName());
         int count = 1;
         while (downloadedFile.isFile() && downloadedFile.exists()) {
             if ( request.getFileName().contains(".")) {
                 // start finding unused names like 'file (1).txt' and 'file (2).txt'
                 final String name = request.getFileName().substring(0, request.getFileName().lastIndexOf('.'));
                 final String ext = request.getFileName().substring(request.getFileName().lastIndexOf('.'));
-                downloadedFile = new File(Downloads.getDownloadDirectory()+"\\1111", name +" ("+count++ +")" + ext);
+                downloadedFile = new File(CreateFolder, name +" ("+count++ +")" + ext);
             } else {
                 // start finding unused names like 'file-1' and 'file-2'
-                downloadedFile = new File(Downloads.getDownloadDirectory()+"\\1111", request.getFileName() + "-"+count++);
+                downloadedFile = new File(CreateFolder, request.getFileName() + "-"+count++);
             }
         }
         return downloadedFile;
