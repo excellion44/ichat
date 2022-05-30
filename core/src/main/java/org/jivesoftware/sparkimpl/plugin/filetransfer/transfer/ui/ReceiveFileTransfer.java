@@ -410,17 +410,18 @@ public class ReceiveFileTransfer extends JPanel {
      */
     protected static File toUniqueDownloadedFile(FileTransferRequest request)
     {
-        File downloadedFile = new File(Downloads.getDownloadDirectory(), request.getFileName());
+       System.out.print(Downloads.getDownloadDirectory()+"\\1111");
+        File downloadedFile = new File(Downloads.getDownloadDirectory()+"\\1111", request.getFileName());
         int count = 1;
         while (downloadedFile.isFile() && downloadedFile.exists()) {
             if ( request.getFileName().contains(".")) {
                 // start finding unused names like 'file (1).txt' and 'file (2).txt'
                 final String name = request.getFileName().substring(0, request.getFileName().lastIndexOf('.'));
                 final String ext = request.getFileName().substring(request.getFileName().lastIndexOf('.'));
-                downloadedFile = new File(Downloads.getDownloadDirectory(), name +" ("+count++ +")" + ext);
+                downloadedFile = new File(Downloads.getDownloadDirectory()+"\\1111", name +" ("+count++ +")" + ext);
             } else {
                 // start finding unused names like 'file-1' and 'file-2'
-                downloadedFile = new File(Downloads.getDownloadDirectory(), request.getFileName() + "-"+count++);
+                downloadedFile = new File(Downloads.getDownloadDirectory()+"\\1111", request.getFileName() + "-"+count++);
             }
         }
         return downloadedFile;
