@@ -520,8 +520,8 @@ public class ContactItem extends JPanel {
        	  	LocalPreferences pref = SettingsManager.getLocalPreferences();
        	  	if(pref.isGrayingOutEnabled())
        	  	{
-       	  		getNicknameLabel().setFont(new Font("Dialog", Font.ITALIC, fontSize));
-                getNicknameLabel().setForeground(Color.gray);	
+       	  		getNicknameLabel().setFont(new Font("Dialog", Font.PLAIN, fontSize));
+                getNicknameLabel().setForeground(Color.black);
        	  	}
        	  	else
        	  	{
