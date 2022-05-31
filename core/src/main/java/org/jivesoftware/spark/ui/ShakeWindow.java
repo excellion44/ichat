@@ -15,6 +15,7 @@
  */ 
 package org.jivesoftware.spark.ui;
 
+import org.jivesoftware.resource.Default;
 import org.jivesoftware.spark.SparkManager;
 
 import javax.swing.Timer;
@@ -25,6 +26,8 @@ import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.Frame;
+import javax.sound.sampled.*;
+import java.io.*;
 
 public class ShakeWindow {
 
@@ -45,6 +48,20 @@ public class ShakeWindow {
         window = d;
     }
 
+    public static void play(String filename)
+    {
+        try
+        {
+            Clip clip = AudioSystem.getClip();
+            clip.open(AudioSystem.getAudioInputStream(new File(filename)));
+            clip.start();
+        }
+        catch (Exception exc)
+        {
+            exc.printStackTrace(System.out);
+        }
+    }
+
     public void startShake() {
         if(window instanceof JFrame){
             JFrame f = (JFrame)window;
@@ -52,6 +69,9 @@ public class ShakeWindow {
             f.setVisible(true);
         }
         SparkManager.getNativeManager().flashWindow(window);
+
+        String currentDir = System.getProperty("user.dir");
+        play(currentDir+Default.getString(Default.ALERT_SIGNAL));
 
         naturalLocation = window.getLocation();
         startTime = System.currentTimeMillis();
