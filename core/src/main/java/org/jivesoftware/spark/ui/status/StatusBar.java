@@ -374,7 +374,7 @@ public class StatusBar extends JPanel implements VCardListener {
             }
         };
 
-       // editMessagesAction.putValue(Action.NAME, Res.getString("menuitem.edit.status.message"));
+        //editMessagesAction.putValue(Action.NAME, Res.getString("menuitem.edit.status.message"));
         //popup.add(editMessagesAction);
 
         final JPanel panel = getStatusPanel();
