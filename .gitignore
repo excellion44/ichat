@@ -46,3 +46,6 @@ ehthumbs.db
 .Spotlight-V100
 tmp/
 
+*.MF
+core/src/main/java/META-INF/MANIFEST.MF
+*.MF

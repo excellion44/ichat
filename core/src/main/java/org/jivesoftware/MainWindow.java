@@ -680,7 +680,7 @@ public final class MainWindow extends ChatFrame implements ActionListener {
                 @Override
 				public void finished() {
                     try {
-                        updater.checkForUpdate(forced);
+                        //updater.checkForUpdate(forced);
                     }
                     catch (Exception e) {
                         Log.error("There was an error while checking for a new update.", e);
