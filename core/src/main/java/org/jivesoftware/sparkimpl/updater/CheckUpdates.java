@@ -106,12 +106,12 @@ public CheckUpdates()
             int selectedOption = JOptionPane.showConfirmDialog(null, "Доступна новая версия программы \n Запустить обновление ?", System.getProperty("user.dir"), JOptionPane.YES_NO_OPTION);
             if (selectedOption == JOptionPane.YES_OPTION)
             {
-                System.out.print("Погнали обновляться");
+                //System.out.print("Погнали обновляться");
 
                 String homeDirectory = System.getProperty("user.dir")+"\\updater.jar";
                 //homeDirectory = homeDirectory.replace("\\","\\\\");
                 homeDirectory = "\""+homeDirectory+"\"";
-                System.out.print(homeDirectory);
+                //System.out.print(homeDirectory);
                 try
                 {
                     Runtime.getRuntime().exec(String.format("cmd.exe /c "+homeDirectory));
