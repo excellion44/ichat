@@ -6,7 +6,7 @@
 <integer>1</integer>
 <key>Emoticons</key>
 <dict>
-<key>angry.png</key>
+<key>angry.gif</key>
 <dict>
     <key>Equivalents</key>
     <array>
@@ -27,6 +27,15 @@
     </array>
     <key>Name</key>
     <string>Blush</string>
+</dict>
+<key>9.gif</key>
+<dict>
+    <key>Equivalents</key>
+    <array>
+        <string>:()</string>
+    </array>
+    <key>Name</key>
+    <string>9</string>
 </dict>
 <key>confused.png</key>
 <dict>
