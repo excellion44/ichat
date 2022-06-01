@@ -53,10 +53,7 @@ import javax.swing.JScrollPane;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.UIManager;
 
-import java.awt.Color;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -67,6 +64,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.Executors;
 
 public class CheckUpdates
 {
@@ -104,9 +102,37 @@ public CheckUpdates()
 
         if(!Objects.equals(CurrentVersion, ServerVersion))
         {
-            System.out.print("Погнали обновляться");
 
-            System.exit(0);
+            int selectedOption = JOptionPane.showConfirmDialog(null, "Доступна новая версия программы \n Запустить обновление ?", System.getProperty("user.dir"), JOptionPane.YES_NO_OPTION);
+            if (selectedOption == JOptionPane.YES_OPTION)
+            {
+                System.out.print("Погнали обновляться");
+
+                String homeDirectory = System.getProperty("user.dir")+"\\updater.jar";
+                //homeDirectory = homeDirectory.replace("\\","\\\\");
+                homeDirectory = "\""+homeDirectory+"\"";
+                System.out.print(homeDirectory);
+                try
+                {
+                    Runtime.getRuntime().exec(String.format("cmd.exe /c "+homeDirectory));
+                }
+                catch (IOException e)
+                {
+                    e.printStackTrace();
+                }
+                System.exit(0);
+            }
+            else
+            {
+
+            }
+
+
+
+
+
+
+
         }
         else
         {
