@@ -22,6 +22,7 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.jivesoftware.Spark;
+import org.jivesoftware.resource.Default;
 import org.jivesoftware.resource.Res;
 import org.jivesoftware.resource.SparkRes;
 import org.jivesoftware.smack.*;
@@ -63,9 +64,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TimerTask;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.*;
 
 public class CheckUpdates
 {
@@ -79,7 +80,39 @@ public CheckUpdates()
 
     if (operSys.contains("win"))
     {
-        System.out.print("Windows");
+       // System.out.print(Default.getString(Default.VERSION_INFO)+"\n");
+
+        String CurrentVersion = Default.getString(Default.VERSION_INFO); // текущая версия ядра
+
+        /*Здесь скачиваем с сайта файл с актуальной версией в  System.getProperty("user.dir") c названием ver.txt*/
+
+        String FileServerVersion = System.getProperty("user.dir")+"\\ver.txt";
+
+        Optional<String> line = null;
+
+        try
+        {
+            line = Files.lines(Paths.get(FileServerVersion)).findFirst();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        //System.out.println(line.get()+"\n");
+
+        String ServerVersion = line.get();
+
+        if(!Objects.equals(CurrentVersion, ServerVersion))
+        {
+            System.out.print("Погнали обновляться");
+
+            System.exit(0);
+        }
+        else
+        {
+            System.out.print("Ниче не делаем");
+
+        }
     }
     else if (operSys.contains("nix") || operSys.contains("nux") || operSys.contains("aix"))
     {

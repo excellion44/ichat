@@ -96,7 +96,7 @@ public final class MainWindow extends ChatFrame implements ActionListener {
         // Synchronize on LOCK to ensure that we don't end up creating two singletons.
         synchronized (LOCK) {
             if (null == singleton) {
-                singleton = new MainWindow(Default.getString(Default.APPLICATION_NAME), SparkManager.getApplicationImage());
+                singleton = new MainWindow(Default.getString(Default.APPLICATION_NAME) + " Версия:" + Default.getString(Default.VERSION_INFO) , SparkManager.getApplicationImage());
             }
         }
         return singleton;
