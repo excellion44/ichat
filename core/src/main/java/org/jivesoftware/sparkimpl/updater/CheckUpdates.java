@@ -56,11 +56,8 @@ import javax.swing.UIManager;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
@@ -83,6 +80,25 @@ public CheckUpdates()
         String CurrentVersion = Default.getString(Default.VERSION_INFO); // текущая версия ядра
 
         /*Здесь скачиваем с сайта файл с актуальной версией в  System.getProperty("user.dir") c названием ver.txt*/
+
+
+        try (BufferedInputStream inputStream = new BufferedInputStream(new URL("http://adm-sharya.ru/ichat/ver.txt").openStream());
+             FileOutputStream fileOS = new FileOutputStream(System.getProperty("user.dir")+"\\ver.txt"))
+        {
+
+            byte data[] = new byte[1024];
+            int byteContent;
+            while ((byteContent = inputStream.read(data, 0, 1024)) != -1)
+            {
+                fileOS.write(data, 0, byteContent);
+            }
+        }
+        catch (IOException e)
+        {
+            System.out.print(e.getMessage());
+            return;
+        }
+
 
         String FileServerVersion = System.getProperty("user.dir")+"\\ver.txt";
 
