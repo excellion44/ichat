@@ -91,7 +91,6 @@ public CheckUpdates()
             while ((byteContent = inputStream.read(data, 0, 1024)) != -1)
             {
                 fileOS.write(data, 0, byteContent);
-                System.out.print(byteContent+"\n");
             }
         }
         catch (IOException e)
