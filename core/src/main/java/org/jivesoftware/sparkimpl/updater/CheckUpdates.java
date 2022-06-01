@@ -81,9 +81,9 @@ public CheckUpdates()
 
         /*Здесь скачиваем с сайта файл с актуальной версией в  System.getProperty("user.dir") c названием ver.txt*/
 
-
-        try (BufferedInputStream inputStream = new BufferedInputStream(new URL("http://adm-sharya.ru/ichat/ver.txt").openStream());
-             FileOutputStream fileOS = new FileOutputStream(System.getProperty("user.dir")+"\\ver.txt"))
+        //--------------------Cкачивание файла-----------------------------------------
+        try (BufferedInputStream inputStream = new BufferedInputStream(new URL("http://adm-sharya.ru/ichat/ver.txt").openStream()); //откуда берем файл
+             FileOutputStream fileOS = new FileOutputStream(System.getProperty("user.dir")+"\\ver.txt")) //куда его сохраняем
         {
 
             byte data[] = new byte[1024];
@@ -91,6 +91,7 @@ public CheckUpdates()
             while ((byteContent = inputStream.read(data, 0, 1024)) != -1)
             {
                 fileOS.write(data, 0, byteContent);
+                System.out.print(byteContent+"\n");
             }
         }
         catch (IOException e)
@@ -98,25 +99,27 @@ public CheckUpdates()
             System.out.print(e.getMessage());
             return;
         }
+        //--------------------КОНЕЦ Cкачивание файла-----------------------------------------
 
 
+        //--------------------Получаем содержимое скаченого файла----------------------
         String FileServerVersion = System.getProperty("user.dir")+"\\ver.txt";
-
         Optional<String> line = null;
-
         try
         {
-            line = Files.lines(Paths.get(FileServerVersion)).findFirst();
+            line = Files.lines(Paths.get(FileServerVersion)).findFirst();//забираем первую строку
         }
         catch (IOException e)
         {
             e.printStackTrace();
         }
-        //System.out.println(line.get()+"\n");
 
         String ServerVersion = line.get();
+        //--------------------КОНЕЦ Получаем содержимое скаченого файла----------------------
 
-        if(!Objects.equals(CurrentVersion, ServerVersion))
+
+
+        if(!Objects.equals(CurrentVersion, ServerVersion)) //Сравниваем 2 стринга - if почему то не катит. нужно стринг сравнивать так.
         {
 
             int selectedOption = JOptionPane.showConfirmDialog(null, "Доступна новая версия программы \n Запустить обновление ?", System.getProperty("user.dir"), JOptionPane.YES_NO_OPTION);
@@ -125,9 +128,8 @@ public CheckUpdates()
                 //System.out.print("Погнали обновляться");
 
                 String homeDirectory = System.getProperty("user.dir")+"\\updater.jar";
-                //homeDirectory = homeDirectory.replace("\\","\\\\");
-                homeDirectory = "\""+homeDirectory+"\"";
-                //System.out.print(homeDirectory);
+                homeDirectory = "\""+homeDirectory+"\""; // это для сраного cmd.exe т.к. он не понимает пути с пробелами (C:\program files ) для того чтобы понимал нужно заключить весь путь к файлу в двойные ковычки
+
                 try
                 {
                     Runtime.getRuntime().exec(String.format("cmd.exe /c "+homeDirectory));
@@ -138,27 +140,22 @@ public CheckUpdates()
                 }
                 System.exit(0);
             }
-            else
-            {
-
-            }
-
-
-
-
-
-
-
         }
         else
         {
-            System.out.print("Ниче не делаем");
 
         }
     }
     else if (operSys.contains("nix") || operSys.contains("nux") || operSys.contains("aix"))
     {
-        System.out.print("Linux");
+         Thread t = new Thread(new Runnable()
+        {
+            public void run()
+            {
+                JOptionPane.showMessageDialog(null, "ЭТО ЛИНУКС");
+            }
+        });
+        t.start();
     }
     else if (operSys.contains("mac"))
     {
