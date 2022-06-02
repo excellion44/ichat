@@ -46,6 +46,26 @@
     <key>Name</key>
     <string>5</string>
 </dict>
+<key>6.gif</key>
+<dict>
+    <key>Equivalents</key>
+    <array>
+        <string>8:-)</string>
+        <string></string>
+    </array>
+    <key>Name</key>
+    <string>6</string>
+</dict>
+<key>7.gif</key>
+<dict>
+    <key>Equivalents</key>
+    <array>
+        <string>X:D</string>
+        <string></string>
+    </array>
+    <key>Name</key>
+    <string>7</string>
+</dict>
 <key>angry.gif</key>
 <dict>
     <key>Equivalents</key>
