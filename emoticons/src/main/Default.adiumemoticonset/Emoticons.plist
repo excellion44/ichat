@@ -6,6 +6,46 @@
 <integer>1</integer>
 <key>Emoticons</key>
 <dict>
+<key>2.gif</key>
+<dict>
+    <key>Equivalents</key>
+    <array>
+        <string>:)</string>
+        <string></string>
+    </array>
+    <key>Name</key>
+    <string>2</string>
+</dict>
+<key>3.gif</key>
+<dict>
+    <key>Equivalents</key>
+    <array>
+        <string>:(</string>
+        <string></string>
+    </array>
+    <key>Name</key>
+    <string>3</string>
+</dict>
+<key>4.gif</key>
+<dict>
+    <key>Equivalents</key>
+    <array>
+        <string>;)</string>
+        <string></string>
+    </array>
+    <key>Name</key>
+    <string>4</string>
+</dict>
+<key>5.gif</key>
+<dict>
+    <key>Equivalents</key>
+    <array>
+        <string>:)0</string>
+        <string></string>
+    </array>
+    <key>Name</key>
+    <string>5</string>
+</dict>
 <key>angry.gif</key>
 <dict>
     <key>Equivalents</key>
