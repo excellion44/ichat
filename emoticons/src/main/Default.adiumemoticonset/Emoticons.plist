@@ -242,7 +242,51 @@
     <key>Name</key>
     <string>25</string>
 </dict>
-
+<key>26.gif</key>
+<dict>
+    <key>Equivalents</key>
+    <array>
+        <string>:shoot:</string>
+    </array>
+    <key>Name</key>
+    <string>26</string>
+</dict>
+<key>27.gif</key>
+<dict>
+    <key>Equivalents</key>
+    <array>
+        <string>:binoculars:</string>
+    </array>
+    <key>Name</key>
+    <string>27</string>
+</dict>
+<key>28.gif</key>
+<dict>
+    <key>Equivalents</key>
+    <array>
+        <string>:angry2:</string>
+    </array>
+    <key>Name</key>
+    <string>28</string>
+</dict>
+<key>29.gif</key>
+<dict>
+    <key>Equivalents</key>
+    <array>
+        <string>:whistle:</string>
+    </array>
+    <key>Name</key>
+    <string>29</string>
+</dict>
+<key>30.gif</key>
+<dict>
+    <key>Equivalents</key>
+    <array>
+        <string>:thx:</string>
+    </array>
+    <key>Name</key>
+    <string>30</string>
+</dict>
 </dict>
 </dict>
 </plist>
