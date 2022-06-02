@@ -152,6 +152,14 @@
     <key>Name</key>
     <string>15</string>
 </dict>
+<key>16.gif</key>
+<dict>
+    <key>Equivalents</key>
+    <array>
+        <string>:bravo:</string>
+    </array>
+    <key>Name</key>
+    <string>16</string>
 </dict>
 </dict>
 </plist>
