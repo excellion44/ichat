@@ -161,5 +161,88 @@
     <key>Name</key>
     <string>16</string>
 </dict>
+<key>17.gif</key>
+<dict>
+    <key>Equivalents</key>
+    <array>
+        <string>:crazy:</string>
+    </array>
+    <key>Name</key>
+    <string>17</string>
+</dict>
+<key>18.gif</key>
+<dict>
+    <key>Equivalents</key>
+    <array>
+        <string>:dontknow:</string>
+    </array>
+    <key>Name</key>
+    <string>18</string>
+</dict>
+<key>19.gif</key>
+<dict>
+    <key>Equivalents</key>
+    <array>
+        <string>:help:</string>
+    </array>
+    <key>Name</key>
+    <string>19</string>
+</dict>
+<key>20.gif</key>
+<dict>
+    <key>Equivalents</key>
+    <array>
+        <string>:prayer:</string>
+    </array>
+    <key>Name</key>
+    <string>20</string>
+</dict>
+<key>21.gif</key>
+<dict>
+    <key>Equivalents</key>
+    <array>
+        <string>:devil:</string>
+    </array>
+    <key>Name</key>
+    <string>21</string>
+</dict>
+<key>22.gif</key>
+<dict>
+    <key>Equivalents</key>
+    <array>
+        <string>:magic:</string>
+    </array>
+    <key>Name</key>
+    <string>22</string>
+</dict>
+<key>23.gif</key>
+<dict>
+    <key>Equivalents</key>
+    <array>
+        <string>:tease:</string>
+    </array>
+    <key>Name</key>
+    <string>23</string>
+</dict>
+<key>24.gif</key>
+<dict>
+    <key>Equivalents</key>
+    <array>
+        <string>:kisses:</string>
+    </array>
+    <key>Name</key>
+    <string>24</string>
+</dict>
+<key>25.gif</key>
+<dict>
+    <key>Equivalents</key>
+    <array>
+        <string>:hi:</string>
+    </array>
+    <key>Name</key>
+    <string>25</string>
+</dict>
+
+</dict>
 </dict>
 </plist>
