@@ -287,6 +287,96 @@
     <key>Name</key>
     <string>30</string>
 </dict>
+<key>31.gif</key>
+<dict>
+    <key>Equivalents</key>
+    <array>
+        <string>:smack:</string>
+    </array>
+    <key>Name</key>
+    <string>31</string>
+</dict>
+<key>32.gif</key>
+<dict>
+    <key>Equivalents</key>
+    <array>
+        <string>:rose:</string>
+    </array>
+    <key>Name</key>
+    <string>32</string>
+</dict>
+<key>33.gif</key>
+<dict>
+    <key>Equivalents</key>
+    <array>
+        <string>:beer:</string>
+    </array>
+    <key>Name</key>
+    <string>33</string>
+</dict>
+<key>34.gif</key>
+<dict>
+    <key>Equivalents</key>
+    <array>
+        <string>:drink:</string>
+    </array>
+    <key>Name</key>
+    <string>34</string>
+</dict>
+<key>35.gif</key>
+<dict>
+    <key>Equivalents</key>
+    <array>
+        <string>:beats:</string>
+    </array>
+    <key>Name</key>
+    <string>35</string>
+</dict>
+<key>36.gif</key>
+<dict>
+    <key>Equivalents</key>
+    <array>
+        <string>:no:</string>
+    </array>
+    <key>Name</key>
+    <string>36</string>
+</dict>
+<key>37.gif</key>
+<dict>
+    <key>Equivalents</key>
+    <array>
+        <string>:ok:</string>
+    </array>
+    <key>Name</key>
+    <string>37</string>
+</dict>
+<key>38.gif</key>
+<dict>
+    <key>Equivalents</key>
+    <array>
+        <string>:cool:</string>
+    </array>
+    <key>Name</key>
+    <string>38</string>
+</dict>
+<key>39.gif</key>
+<dict>
+    <key>Equivalents</key>
+    <array>
+        <string>:kissgirl:</string>
+    </array>
+    <key>Name</key>
+    <string>39</string>
+</dict>
+<key>40.gif</key>
+<dict>
+    <key>Equivalents</key>
+    <array>
+        <string>:hot:</string>
+    </array>
+    <key>Name</key>
+    <string>40</string>
+</dict>
 </dict>
 </dict>
 </plist>
