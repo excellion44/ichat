@@ -154,8 +154,8 @@ public abstract class ChatRoom extends BackgroundPanel implements ActionListener
         chatAreaButton = new ChatAreaSendField(Res.getString("button.send"));
         textScroller = new JScrollPane(transcriptWindow);
         textScroller.setBackground(transcriptWindow.getBackground());
-        textScroller.getViewport().setBackground(Color.white);
-        transcriptWindow.setBackground(Color.white);
+        textScroller.getViewport().setBackground(Color.decode("#ffff80"));
+        transcriptWindow.setBackground(Color.decode("#ffff80"));
 
         getChatInputEditor().setSelectedTextColor((Color) UIManager.get("ChatInput.SelectedTextColor"));
         getChatInputEditor().setSelectionColor((Color) UIManager.get("ChatInput.SelectionColor"));
