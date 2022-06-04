@@ -15,6 +15,7 @@
  */
 package org.jivesoftware.spark.ui;
 
+import org.jivesoftware.resource.Default;
 import org.jivesoftware.resource.Res;
 import org.jivesoftware.resource.SparkRes;
 import org.jivesoftware.smack.ConnectionListener;
@@ -154,8 +155,8 @@ public abstract class ChatRoom extends BackgroundPanel implements ActionListener
         chatAreaButton = new ChatAreaSendField(Res.getString("button.send"));
         textScroller = new JScrollPane(transcriptWindow);
         textScroller.setBackground(transcriptWindow.getBackground());
-        textScroller.getViewport().setBackground(Color.decode("#ffff80"));
-        transcriptWindow.setBackground(Color.decode("#ffff80"));
+        textScroller.getViewport().setBackground(Color.decode(Default.getString(Default.CORESPONDNCE_WINDOW_COLOR)));
+        transcriptWindow.setBackground(Color.decode(Default.getString(Default.CORESPONDNCE_WINDOW_COLOR)));
 
         getChatInputEditor().setSelectedTextColor((Color) UIManager.get("ChatInput.SelectedTextColor"));
         getChatInputEditor().setSelectionColor((Color) UIManager.get("ChatInput.SelectionColor"));

@@ -151,6 +151,7 @@ public class Default {
     public static final String PROXY_PROTOCOL = "PROXY_PROTOCOL";
     public static final String ALERT_SIGNAL = "ALERT_SIGNAL";
     public static final String VERSION_INFO = "VERSION_INFO";
+    public static final String CORESPONDNCE_WINDOW_COLOR = "CORESPONDNCE_WINDOW_COLOR";
 
     private static final ClassLoader cl = SparkRes.class.getClassLoader();
 
