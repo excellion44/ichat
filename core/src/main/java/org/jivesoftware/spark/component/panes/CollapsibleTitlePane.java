@@ -68,7 +68,7 @@ public class CollapsibleTitlePane extends BaseCollapsibleTitlePane {
         Font titleFont = new Font("Dialog", Font.BOLD, 11);
 
         // Initialize color
-        startColor = new Color(238,242,253);
+        startColor = new Color(238,242,253); //Цвет групп
         endColor = Color.white;
         titleLabel = new JLabel();
         iconLabel = new JLabel();
