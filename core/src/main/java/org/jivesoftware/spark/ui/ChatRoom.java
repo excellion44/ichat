@@ -648,27 +648,33 @@ public abstract class ChatRoom extends BackgroundPanel implements ActionListener
     }
 
     /**
-     * Checks to see if enter was pressed and validates room.
+     Отправка сообщений по кнопке Enter
      *
      * @param e the KeyEvent
      */
-    private void checkForEnter(KeyEvent e) {
+    private void checkForEnter(KeyEvent e)
+    {
         final KeyStroke keyStroke = KeyStroke.getKeyStroke(e.getKeyCode(), e.getModifiers());
-        if (!keyStroke.equals(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, KeyEvent.SHIFT_DOWN_MASK))
-                && e.getKeyChar() == KeyEvent.VK_ENTER) {
+        if (!keyStroke.equals(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, KeyEvent.SHIFT_DOWN_MASK)) && e.getKeyChar() == KeyEvent.VK_ENTER && e.isControlDown()) //отправка сообщений ctrl+Enter
+        {
             e.consume();
             sendMessage();
             getChatInputEditor().setText("");
             getChatInputEditor().setCaretPosition(0);
 
             SparkManager.getWorkspace().getTranscriptPlugin().persistChatRoom(this);
-        } else if (keyStroke.equals(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, KeyEvent.SHIFT_DOWN_MASK))) {
+        }
+        else if (keyStroke.equals(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, KeyEvent.SHIFT_DOWN_MASK)))
+        {
             final Document document = getChatInputEditor().getDocument();
-            try {
+            try
+            {
                 document.insertString(getChatInputEditor().getCaretPosition(), "\n", null);
                 getChatInputEditor().requestFocusInWindow();
                 chatAreaButton.getButton().setEnabled(true);
-            } catch (BadLocationException badLoc) {
+            }
+            catch (BadLocationException badLoc)
+            {
                 Log.error("Error when checking for enter:", badLoc);
             }
         }
