@@ -62,6 +62,7 @@ public class Default {
     public static final String TAB_END_COLOR = "TAB_END_COLOR";
     public static final String CONTACT_GROUP_START_COLOR = "CONTACT_GROUP_START_COLOR";
     public static final String CONTACT_GROUP_END_COLOR = "CONTACT_GROUP_END_COLOR";
+    public static final String CONTACT_ITEM_BACKGROUND = "CONTACT_ITEM_BACKGROUND";
     public static final String PROXY_HOST = "PROXY_HOST";
     public static final String PROXY_PORT = "PROXY_PORT";
     public static final String ACCOUNT_DISABLED = "ACCOUNT_DISABLED";

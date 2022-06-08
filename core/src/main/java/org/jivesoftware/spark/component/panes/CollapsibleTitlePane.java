@@ -15,6 +15,7 @@
  */
 package org.jivesoftware.spark.component.panes;
 
+import org.jivesoftware.resource.Default;
 import org.jivesoftware.resource.SparkRes;
 import org.jivesoftware.spark.util.ColorUtil;
 import org.jivesoftware.spark.util.GraphicUtils;
@@ -64,12 +65,34 @@ public class CollapsibleTitlePane extends BaseCollapsibleTitlePane {
     public CollapsibleTitlePane() {
         setLayout(new GridBagLayout());
 
-        titleColor = new Color(33, 93, 198);
+        String title = Default.getString(Default.TEXT_COLOR);
+        String titleRGBA[] = title.split(",");
+        int titleR = Integer.parseInt(titleRGBA[0]);
+        int titleG = Integer.parseInt(titleRGBA[1]);
+        int titleB = Integer.parseInt(titleRGBA[2]);
+        int titleA = Integer.parseInt(titleRGBA[3]);
+
+        titleColor = new Color(titleR, titleG, titleB,titleA);
         Font titleFont = new Font("Dialog", Font.BOLD, 11);
 
         // Initialize color
-        startColor = new Color(238,242,253); //Цвет групп
-        endColor = Color.white;
+        String start = Default.getString(Default.CONTACT_GROUP_START_COLOR);
+        String startRGBA[] = start.split(",");
+        int startR = Integer.parseInt(startRGBA[0]);
+        int startG = Integer.parseInt(startRGBA[1]);
+        int startB = Integer.parseInt(startRGBA[2]);
+        int startA = Integer.parseInt(startRGBA[3]);
+
+
+        String end = Default.getString(Default.CONTACT_GROUP_END_COLOR);
+        String endRGBA[] = end.split(",");
+        int endR = Integer.parseInt(endRGBA[0]);
+        int endG = Integer.parseInt(endRGBA[1]);
+        int endB = Integer.parseInt(endRGBA[2]);
+        int endA = Integer.parseInt(endRGBA[3]);
+
+        startColor = new Color(startR,startG,startB,startA); //Цвет групп
+        endColor = new Color(endR,endG,endB, endA);
         titleLabel = new JLabel();
         iconLabel = new JLabel();
 
