@@ -73,7 +73,8 @@ public class CollapsibleTitlePane extends BaseCollapsibleTitlePane {
         int titleA = Integer.parseInt(titleRGBA[3]);
 
         titleColor = new Color(titleR, titleG, titleB,titleA);
-        Font titleFont = new Font("Dialog", Font.BOLD, 11);
+
+        Font titleFont = new Font("Dialog", Font.BOLD,Integer.parseInt(Default.getString(Default.TEXT_SIZE)) );
 
         // Initialize color
         String start = Default.getString(Default.CONTACT_GROUP_START_COLOR);

@@ -58,6 +58,7 @@ public class Default {
     public static final String SECONDARY_BACKGROUND_IMAGE = "SECONDARY_BACKGROUND_IMAGE";
     public static final String HOVER_TEXT_COLOR = "HOVER_TEXT_COLOR";
     public static final String TEXT_COLOR = "TEXT_COLOR";
+    public static final String TEXT_SIZE = "TEXT_SIZE";
     public static final String TAB_START_COLOR = "TAB_START_COLOR";
     public static final String TAB_END_COLOR = "TAB_END_COLOR";
     public static final String CONTACT_GROUP_START_COLOR = "CONTACT_GROUP_START_COLOR";
