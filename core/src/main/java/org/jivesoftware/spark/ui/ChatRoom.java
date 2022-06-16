@@ -244,7 +244,7 @@ public abstract class ChatRoom extends BackgroundPanel implements ActionListener
         splitPane.setOpaque(false);
         bottomPanel.setLayout(new GridBagLayout());
         bottomPanel.add(chatAreaButton, new GridBagConstraints(0, 1, 5, 1, 1.0, 1.0, GridBagConstraints.WEST,
-                GridBagConstraints.BOTH, getChatAreaInsets(), 0, 35));
+                GridBagConstraints.BOTH, getChatAreaInsets(), 0, 80));
         bottomPanel.add(editorWrapperBar, new GridBagConstraints(0, 0, 5, 1, 0.0, 0.0, GridBagConstraints.WEST,
                 GridBagConstraints.HORIZONTAL, getEditorWrapperInsets(), 0, 0));
 
@@ -254,7 +254,7 @@ public abstract class ChatRoom extends BackgroundPanel implements ActionListener
 
         verticalSplit.setBottomComponent(bottomPanel);
         verticalSplit.setResizeWeight(1.0);
-        verticalSplit.setDividerSize(2);
+        verticalSplit.setDividerSize(5);
 
         // Add listener to send button
         chatAreaButton.getButton().addActionListener(this);
