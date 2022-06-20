@@ -82,13 +82,13 @@ public class ConferenceServices implements InvitationListener {
 
             // Add Join Conference Button to ActionMenu
 
-              //final JMenu actionsMenu = SparkManager.getMainWindow().getMenuByName(Res.getString("menuitem.actions"));
-            //JMenuItem actionMenuItem = new JMenuItem(Res.getString("message.join.conference.room"), SparkRes.getImageIcon(SparkRes.CONFERENCE_IMAGE_16x16));
-           // actionsMenu.add(actionMenuItem,1);
-           // actionMenuItem.addActionListener( e -> {
-            //    ConferenceRoomBrowser rooms = new ConferenceRoomBrowser(bookmarksUI, getDefaultServiceName());
-             //   rooms.invoke();
-           // } );
+              final JMenu actionsMenu = SparkManager.getMainWindow().getMenuByName(Res.getString("menuitem.actions"));
+            JMenuItem actionMenuItem = new JMenuItem(Res.getString("message.join.conference.room"), SparkRes.getImageIcon(SparkRes.CONFERENCE_IMAGE_16x16));
+            actionsMenu.add(actionMenuItem,1);
+            actionMenuItem.addActionListener( e -> {
+                ConferenceRoomBrowser rooms = new ConferenceRoomBrowser(bookmarksUI, getDefaultServiceName());
+                rooms.invoke();
+            } );
 
             // Add Presence Listener to send directed presence to Group Chat Rooms.
             PresenceListener presenceListener = presence -> SwingUtilities.invokeLater( () -> {
@@ -255,8 +255,8 @@ public class ConferenceServices implements InvitationListener {
             }
         };
 
-        //conferenceAction.putValue(Action.NAME, Res.getString("menuitem.start.a.conference"));
-        //conferenceAction.putValue(Action.SMALL_ICON, SparkRes.getImageIcon(SparkRes.SMALL_WORKGROUP_QUEUE_IMAGE));
+        conferenceAction.putValue(Action.NAME, Res.getString("menuitem.start.a.conference"));
+        conferenceAction.putValue(Action.SMALL_ICON, SparkRes.getImageIcon(SparkRes.SMALL_WORKGROUP_QUEUE_IMAGE));
 
 
         contactList.addContextMenuListener(new ContextMenuListener() {
@@ -283,8 +283,8 @@ public class ConferenceServices implements InvitationListener {
         });
 
         // Add to Actions Menu
-       // final JMenu actionsMenu = SparkManager.getMainWindow().getMenuByName(Res.getString("menuitem.actions"));
-       // actionsMenu.add(conferenceAction);
+        final JMenu actionsMenu = SparkManager.getMainWindow().getMenuByName(Res.getString("menuitem.actions"));
+        actionsMenu.add(conferenceAction);
     }
 
     private void startConference(Collection<ContactItem> items) {
